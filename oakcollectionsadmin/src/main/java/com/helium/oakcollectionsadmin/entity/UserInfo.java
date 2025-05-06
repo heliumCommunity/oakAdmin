@@ -2,27 +2,38 @@ package com.helium.oakcollectionsadmin.entity;
 
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
 
 import jakarta.persistence.*;
 import lombok.Data;
 import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Audited
 @Data
 @Table(name = "userinfo")
-public class UserInfo {
+public class UserInfo implements UserDetails {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "userId")
     //Going to generate a unique Id for each staff with a generation Logic
-    private Long id;
+    private String id;
 
-    @Column(name = "fullname", nullable = false)
-    private String fullName;
+    @Column(name = "firstName", nullable = false)
+    private String firstName;
+
+    @Column(name = "middleName", nullable = false)
+    private String middleName;
+
+    @Column(name = "lastName")
+    private String lastName;
 
     @Column(name = "email", nullable = false, unique = true)
     private String email;
@@ -32,12 +43,13 @@ public class UserInfo {
 
     @Column(name = "phoneNumber")
     private String phoneNumber;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
     @Column(name = "jobTitle")
     private String designation; // e.g., "Creative Director", "Studio Manager"
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "activationStatus")
     private isActive activationStatus;
 
@@ -56,5 +68,42 @@ public class UserInfo {
     @PreUpdate
     protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
+    }
+
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority(role.name()));
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
     }
 }

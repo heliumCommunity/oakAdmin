@@ -1,11 +1,12 @@
 package com.helium.oakcollectionsadmin.serviceImpls;
 
-import com.helium.oakcollectionsadmin.entity.UserInfo;
+import com.helium.oakcollectionsadmin.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -15,7 +16,6 @@ import java.util.*;
 public class UserInfoAuditService {
     @PersistenceContext
     private EntityManager entityManager;
-
     public List<Map<String, Object>> getAuditHistory(Long userId) {
         log.info("Fetching audit history for User ID: {}", userId);
 
