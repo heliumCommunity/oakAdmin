@@ -1,16 +1,19 @@
 package com.helium.oakcollectionsadmin.serviceImpls;
 
-import com.helium.oakcollectionsadmin.dto.GeneralResponse;
-import com.helium.oakcollectionsadmin.dto.LogInRequest;
-import com.helium.oakcollectionsadmin.dto.SignUpRequest;
+import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.UserInfo;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
+import com.helium.oakcollectionsadmin.jwt.JwtUtil;
 import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -23,6 +26,7 @@ public class OnboardingService {
     private final UserInfoRepo userInfoRepo;
     private final UserIdGenerationService userIdGenerationService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtil jwtUtil;
 
     public ResponseEntity<GeneralResponse> signUp(SignUpRequest signUpRequest) {
         log.info("SignUp Process Has started");
@@ -60,25 +64,68 @@ public class OnboardingService {
 
     }
 
-    public ResponseEntity<GeneralResponse> LogIn(LogInRequest logInRequest) {
+    public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
+
         try {
             Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
-            if (doesUserExist.isPresent()) {
+            if(doesUserExist.isPresent()) {
+                UserInfo getAcct = doesUserExist.get();
+                if (passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
+                    String jwtToken = jwtUtil.generateToken(getAcct);
+                    ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
+                            .httpOnly(true)
+                            .secure(true) // in production
+                            .path("/")
+                            .maxAge(24 * 60 * 60)
+                            .build();
+                    return ResponseEntity.ok()
+                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
 
-                if (passwordEncoder.matches(logInRequest.getPassword(), doesUserExist.get().getPassword())) {
-                    return new ResponseEntity<>(new GeneralResponse("You have logged in successfully", LocalDateTime.now().toString()), HttpStatus.OK);
                 } else {
-                    return new ResponseEntity<>(new GeneralResponse("Invalid Email or Password", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
+                    throw new BadCredentialsException("Invalid Email or Password");
                 }
             }
 
         } catch (Exception e) {
             log.error("Error is - {}", e.getMessage());
-            return new ResponseEntity<>(new GeneralResponse(e.getMessage(), LocalDateTime.now().toString()), HttpStatus.INTERNAL_SERVER_ERROR);
+            throw new RuntimeException("Error is - " + e.getMessage());
         }
         return null;
     }
+    public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
+        log.info("LogOut Process Has started");
+        log.info("LogOut request::::::::::::: {}", LocalDateTime.now().toString());
+
+        ResponseCookie cookie = ResponseCookie.from("jwt", "")
+                .httpOnly(true)
+                .secure(false) //true in production
+                .path("/")
+                .maxAge(0)
+                .sameSite("Strict")
+                .build();
+        response.setHeader("Set-Cookie", cookie.toString());
+        return new ResponseEntity<>(new GeneralResponse("You have logged out", LocalDateTime.now().toString()), HttpStatus.OK);
+
+    }
+
+    public ResponseEntity<GeneralResponse> deleteAcct(DeleteAcctRequest deleteAcctRequest) {
+        log.info("Account Deletion Has Started");
+        log.info("Delete request:::::::::::::::: -- {}", deleteAcctRequest);
+
+
+        Optional <UserInfo> userExist = userInfoRepo.findByEmail(deleteAcctRequest.getEmail());
+        if (userExist.isPresent()) {
+            log.info("Email Provided exists::::::::::::::::: {}", deleteAcctRequest.getEmail());
+            log.info("About to delete user : {}", deleteAcctRequest.getEmail());
+            userInfoRepo.delete(userExist.get());
+            log.info("User with email : {} has been deleted", deleteAcctRequest.getEmail());
+            return new ResponseEntity<>(new GeneralResponse("Account Deleted Successfully", LocalDateTime.now().toString()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new GeneralResponse("Email provided is not tied to a user", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
+    }
+
 
 }

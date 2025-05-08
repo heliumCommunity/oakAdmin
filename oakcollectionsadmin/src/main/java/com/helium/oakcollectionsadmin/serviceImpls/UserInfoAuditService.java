@@ -6,7 +6,6 @@ import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -17,31 +16,39 @@ public class UserInfoAuditService {
     @PersistenceContext
     private EntityManager entityManager;
     public List<Map<String, Object>> getAuditHistory(Long userId) {
-        log.info("Fetching audit history for User ID: {}", userId);
+        try {
 
-        AuditReader reader = AuditReaderFactory.get(entityManager);
+            log.info("Fetching audit history for User ID: {}", userId);
 
-        List<Number> revisions = reader.getRevisions(UserInfo.class, userId);
-        log.info("Found {} revisions for User Id: {}", revisions.size(),userId);
-        List<Map<String, Object>> history = new ArrayList<>();
+            AuditReader reader = AuditReaderFactory.get(entityManager);
 
-        for (Number rev : revisions) {
-            log.debug("Fetching data for changes made: {}", rev);
-            UserInfo userHistoryTracker = reader.find(UserInfo.class, userId, rev);
-            Date revisionDate = reader.getRevisionDate(rev);
-            log.debug("Revision {} at {}: {}",rev, revisionDate,userHistoryTracker);
+            List<Number> revisions = reader.getRevisions(UserInfo.class, userId);
+            log.info("Found {} revisions for User Id: {}", revisions.size(), userId);
+            List<Map<String, Object>> history = new ArrayList<>();
 
-            Map<String, Object> record = new HashMap<>();
-            record.put("revision", rev);
-            record.put("revisionDate", revisionDate);
-            record.put("adminData", userHistoryTracker);
+            for (Number rev : revisions) {
+                log.debug("Fetching data for changes made: {}", rev);
+                UserInfo userHistoryTracker = reader.find(UserInfo.class, userId, rev);
+                Date revisionDate = reader.getRevisionDate(rev);
+                log.debug("Revision {} at {}: {}", rev, revisionDate, userHistoryTracker);
 
-            history.add(record);
+                Map<String, Object> record = new HashMap<>();
+                record.put("revision", rev);
+                record.put("revisionDate", revisionDate);
+                record.put("adminData", userHistoryTracker);
+
+                history.add(record);
+            }
+            log.info("Returning history: {}", history);
+            log.info("Finished Fetching audit history for User Id: {}", userId);
+
+            return history;
         }
-        log.info("Returning history: {}", history);
-        log.info("Finished Fetching audit history for User Id: {}", userId);
+        catch (Exception e) {
+            log.error(e.getMessage());
+            return null;
+        }
+        }
 
-        return history;
-    }
 
 }

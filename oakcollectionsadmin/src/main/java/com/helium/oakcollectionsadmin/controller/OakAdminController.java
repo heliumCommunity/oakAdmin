@@ -1,10 +1,12 @@
 package com.helium.oakcollectionsadmin.controller;
 
+import com.helium.oakcollectionsadmin.dto.AuthenticationResponse;
 import com.helium.oakcollectionsadmin.dto.GeneralResponse;
 import com.helium.oakcollectionsadmin.dto.LogInRequest;
 import com.helium.oakcollectionsadmin.dto.SignUpRequest;
 import com.helium.oakcollectionsadmin.serviceImpls.OnboardingService;
 import com.helium.oakcollectionsadmin.serviceImpls.UserInfoAuditService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,9 +39,15 @@ public class OakAdminController {
         log.info("sign-up has been called::::::");
         return onboardingService.signUp(signUpRequest);
     }
-    @GetMapping("/auth/log-in")
-    public ResponseEntity<GeneralResponse> logIn(@RequestBody LogInRequest logInRequest) {
+    @PostMapping ("/auth/log-in")
+    public ResponseEntity<AuthenticationResponse> logIn(@RequestBody LogInRequest logInRequest) {
         log.info("log-in has been called::::::");
         return onboardingService.LogIn(logInRequest);
+    }
+    @PostMapping("/auth/log-out")
+    public ResponseEntity<GeneralResponse> logout(HttpServletResponse response) {
+        log.info("log-out has been called::::::");
+        return onboardingService.LogOut(response);
+
     }
 }
