@@ -1,19 +1,14 @@
 package com.helium.oakcollectionsadmin.controller;
 
-import com.helium.oakcollectionsadmin.dto.AuthenticationResponse;
-import com.helium.oakcollectionsadmin.dto.GeneralResponse;
-import com.helium.oakcollectionsadmin.dto.LogInRequest;
-import com.helium.oakcollectionsadmin.dto.SignUpRequest;
+import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.serviceImpls.OnboardingService;
 import com.helium.oakcollectionsadmin.serviceImpls.UserInfoAuditService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,7 +23,6 @@ public class OakAdminController {
     private final UserInfoAuditService auditService;
     private final OnboardingService onboardingService;
 
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @GetMapping("/admin/get-user-history")
     public List<Map<String, Object>> getOakCollectionsAdminHistory(@RequestHeader String userId) {
         log.info("get-user-history has been called::::::");
@@ -49,5 +43,10 @@ public class OakAdminController {
         log.info("log-out has been called::::::");
         return onboardingService.LogOut(response);
 
+    }
+    @DeleteMapping("admin/delete-user-acct")
+    public ResponseEntity<GeneralResponse> deleteUser(@RequestBody DeleteAcctRequest request) {
+        log.info("deleteUser endpoint has been called::::::");
+        return onboardingService.deleteAcct(request);
     }
 }
