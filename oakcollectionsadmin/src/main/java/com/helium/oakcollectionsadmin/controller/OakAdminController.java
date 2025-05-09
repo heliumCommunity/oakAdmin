@@ -28,9 +28,9 @@ public class OakAdminController {
     private final UserInfoAuditService auditService;
     private final OnboardingService onboardingService;
 
-    @PreAuthorize("hasRole('admin')")
-    @GetMapping("/get-user-history")
-    public List<Map<String, Object>> getOakCollectionsAdminHistory(@RequestHeader Long userId) {
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @GetMapping("/admin/get-user-history")
+    public List<Map<String, Object>> getOakCollectionsAdminHistory(@RequestHeader String userId) {
         log.info("get-user-history has been called::::::");
         return auditService.getAuditHistory(userId);
     }

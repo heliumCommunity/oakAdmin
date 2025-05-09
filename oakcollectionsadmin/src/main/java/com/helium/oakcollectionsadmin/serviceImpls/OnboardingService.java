@@ -68,7 +68,6 @@ public class OnboardingService {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
-        try {
             Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
             if(doesUserExist.isPresent()) {
                 UserInfo getAcct = doesUserExist.get();
@@ -84,16 +83,12 @@ public class OnboardingService {
                             .header(HttpHeaders.SET_COOKIE, cookie.toString())
                             .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
 
-                } else {
-                    throw new BadCredentialsException("Invalid Email or Password");
                 }
-            }
+                return  ResponseEntity.ok()
+                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString()));
+                }
 
-        } catch (Exception e) {
-            log.error("Error is - {}", e.getMessage());
-            throw new RuntimeException("Error is - " + e.getMessage());
-        }
-        return null;
+        throw new BadCredentialsException("User Not Found");
     }
     public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
         log.info("LogOut Process Has started");
@@ -126,6 +121,7 @@ public class OnboardingService {
         }
         return new ResponseEntity<>(new GeneralResponse("Email provided is not tied to a user", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
     }
+
 
 
 }

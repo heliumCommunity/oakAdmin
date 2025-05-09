@@ -15,7 +15,12 @@ import java.util.*;
 public class UserInfoAuditService {
     @PersistenceContext
     private EntityManager entityManager;
-    public List<Map<String, Object>> getAuditHistory(Long userId) {
+
+    public List<Map<String, Object>> getAuditHistory(String userId) {
+        log.info("getAuditHistory has been called");
+        if (userId == null) {
+            throw new IllegalArgumentException("userId cannot be null");
+        }
         try {
 
             log.info("Fetching audit history for User ID: {}", userId);
@@ -24,6 +29,10 @@ public class UserInfoAuditService {
 
             List<Number> revisions = reader.getRevisions(UserInfo.class, userId);
             log.info("Found {} revisions for User Id: {}", revisions.size(), userId);
+            if (revisions.isEmpty()) {
+                log.info("No revisions found for User Id: {}", userId);
+                throw new RuntimeException("No revisions found for User Id: " + userId);
+            }
             List<Map<String, Object>> history = new ArrayList<>();
 
             for (Number rev : revisions) {

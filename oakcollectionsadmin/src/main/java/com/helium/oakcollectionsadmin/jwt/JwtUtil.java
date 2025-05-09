@@ -4,9 +4,11 @@ import com.helium.oakcollectionsadmin.serviceImpls.CustomUserDetailsService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -24,9 +26,17 @@ public class JwtUtil {
 
     private final CustomUserDetailsService detailsService;
 
-    private final Key key = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    @Value("${application.secret.key}")
+    private String SecretKey;
     private static final long EXPIRATION = 1000 * 60 * 15; // 15 minutes
     private static final long REFRESH_TOKEN_EXPIRATION = 1000L * 60 * 60 * 24 * 7; // 7 days
+
+
+    private Key getSignInKey(){
+        byte[] keyBytes = Decoders.BASE64.decode(SecretKey);
+        return Keys.hmacShaKeyFor(keyBytes);
+    }
+
 
     // ✅ Generate JWT token with roles claim
     public String generateToken(UserDetails userDetails) {
@@ -35,7 +45,7 @@ public class JwtUtil {
         // Convert authorities to a list of role strings
         Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
         List<String> roles = authorities.stream()
-                .map(GrantedAuthority::getAuthority)
+                .map(authority -> "ROLE_" + authority.getAuthority())
                 .collect(Collectors.toList());
 
         return Jwts.builder()
@@ -43,7 +53,7 @@ public class JwtUtil {
                 .claim("roles", roles)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -76,8 +86,9 @@ public class JwtUtil {
 
     // ✅ Private helper to extract all claims
     private Claims getClaims(String token) {
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
+        return Jwts
+                .parserBuilder()
+                .setSigningKey(getSignInKey())
                 .build()
                 .parseClaimsJws(token)
                 .getBody();

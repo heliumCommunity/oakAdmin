@@ -23,7 +23,7 @@ public class UserIdGenerationService {
             log.info("Generating Number Part of UserId {}", randomNumber);
             String numberPart = String.valueOf(randomNumber);
             String stringPart = email.substring(0,2);
-            String userId = numberPart + stringPart;
+            String userId = stringPart.toUpperCase() + numberPart;
             log.info("Generated UserId - {}", userId);
             return userId;
 
