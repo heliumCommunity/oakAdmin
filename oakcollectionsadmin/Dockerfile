@@ -1,25 +1,25 @@
-# Use a lightweight Java 17 JDK base image
 FROM eclipse-temurin:17-jdk-alpine
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Copy Maven Wrapper support files
-COPY .mvn/ .mvn/
+# Copy Maven wrapper scripts
 COPY mvnw .
-COPY pom.xml .
+COPY .mvn/ .mvn/
 
-# Download dependencies first to cache layers efficiently
+# Copy project files (note the nested path)
+COPY oakcollectionsadmin/pom.xml .
+
+# Download dependencies first
 RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
 
-# Copy the actual source code
-COPY src ./src
+# Copy source code (nested path)
+COPY oakcollectionsadmin/src ./src
 
-# Build the Spring Boot app
+# Build the app
 RUN ./mvnw clean package -DskipTests
 
-# Expose the app port
+# Expose the port Spring Boot runs on
 EXPOSE 8080
 
-# Run the JAR file
+# Run the built jar
 CMD ["java", "-jar", "target/*.jar"]
