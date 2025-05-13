@@ -13,8 +13,8 @@ RUN chmod +x mvnw
 # Run Maven build with the wrapper
 RUN ./mvnw clean install -DskipTests
 
-# Use a lightweight Java runtime for the production environment
-FROM openjdk:17-jre-slim
+# Use a Java 17 runtime environment for the production environment
+FROM openjdk:17-jdk-slim
 
 # Set working directory inside the container
 WORKDIR /app
