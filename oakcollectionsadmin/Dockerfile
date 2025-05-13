@@ -1,5 +1,5 @@
-# Use an official Maven image to build the project
-FROM maven:3.8.4-jdk-11 AS build
+# Use an official Maven image to build the project with Java 17
+FROM maven:3.8.4-openjdk-17 AS build
 
 # Set working directory inside the container
 WORKDIR /app
@@ -14,7 +14,7 @@ RUN chmod +x mvnw
 RUN ./mvnw clean install -DskipTests
 
 # Use a lightweight Java runtime for the production environment
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jre-slim
 
 # Set working directory inside the container
 WORKDIR /app
