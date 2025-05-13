@@ -1,23 +1,29 @@
-FROM eclipse-temurin:17-jdk-alpine
+# Use an official Maven image to build the project
+FROM maven:3.8.4-jdk-11 AS build
 
+# Set working directory inside the container
 WORKDIR /app
 
-# Copy Maven wrapper and config
-COPY .mvn/ .mvn/
-COPY mvnw .
-COPY pom.xml .
+# Copy the project files into the container
+COPY oakcollectionsadmin/ .
 
-# Download dependencies
-RUN chmod +x mvnw && ./mvnw dependency:go-offline -B
+# Give execution rights on the mvnw file
+RUN chmod +x mvnw
 
-# Copy application source code
-COPY src/ ./src/
+# Run Maven build with the wrapper
+RUN ./mvnw clean install -DskipTests
 
-# Build the Spring Boot application
-RUN ./mvnw clean package -DskipTests
+# Use a lightweight Java runtime for the production environment
+FROM openjdk:11-jre-slim
 
-# Expose the port your Spring Boot app runs on
+# Set working directory inside the container
+WORKDIR /app
+
+# Copy the built artifact from the build stage
+COPY --from=build /app/target/oakcollectionsadmin-*.jar oakcollectionsadmin.jar
+
+# Expose port 8080 for the app
 EXPOSE 8080
 
-# Run the generated JAR file
-CMD ["java", "-jar", "target/*.jar"]
+# Run the application
+ENTRYPOINT ["java", "-jar", "/app/oakcollectionsadmin.jar"]
