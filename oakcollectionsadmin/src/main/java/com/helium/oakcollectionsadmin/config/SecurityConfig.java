@@ -32,8 +32,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
-                .requestMatchers("/api/v1/oakcollectionsadmin/admin/**").hasRole("ADMIN")
-                .requestMatchers("/api/v1/oakcollectionsadmin/auth/**").permitAll()
+                .requestMatchers("https://oakadmin-im5t.onrender.com/admin/**").hasRole("ADMIN")
+                .requestMatchers("https://oakadmin-im5t.onrender.com/auth/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
