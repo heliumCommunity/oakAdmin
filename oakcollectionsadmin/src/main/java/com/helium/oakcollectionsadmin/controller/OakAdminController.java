@@ -24,7 +24,7 @@ public class OakAdminController {
     private final OnboardingService onboardingService;
 
     @GetMapping("/admin/get-user-history")
-    public List<Map<String, Object>> getOakCollectionsAdminHistory(@RequestHeader String userId) {
+    public Object getOakCollectionsAdminHistory(@RequestHeader String userId) {
         log.info("get-user-history has been called::::::");
         return auditService.getAuditHistory(userId);
     }

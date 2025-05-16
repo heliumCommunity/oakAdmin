@@ -6,6 +6,7 @@ import jakarta.persistence.PersistenceContext;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -16,7 +17,7 @@ public class UserInfoAuditService {
     @PersistenceContext
     private EntityManager entityManager;
 
-    public List<Map<String, Object>> getAuditHistory(String userId) {
+    public Object getAuditHistory(String userId) {
         log.info("getAuditHistory has been called");
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");
@@ -31,7 +32,8 @@ public class UserInfoAuditService {
             log.info("Found {} revisions for User Id: {}", revisions.size(), userId);
             if (revisions.isEmpty()) {
                 log.info("No revisions found for User Id: {}", userId);
-                throw new RuntimeException("No revisions found for User Id: " + userId);
+                return "No Revisions Found";
+
             }
             List<Map<String, Object>> history = new ArrayList<>();
 
