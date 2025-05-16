@@ -32,8 +32,8 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/api/v1/oakcollectionsadmin/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/v1/oakcollectionsadmin/auth/**").permitAll()
                 .anyRequest()
                 .authenticated()
                 .and()
