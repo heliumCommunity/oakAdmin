@@ -3,10 +3,13 @@ package com.helium.oakcollectionsadmin.serviceImpls;
 import com.helium.oakcollectionsadmin.entity.*;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.servlet.http.Cookie;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -18,6 +21,7 @@ public class UserInfoAuditService {
     private EntityManager entityManager;
 
     public Object getAuditHistory(String userId) {
+//        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         log.info("getAuditHistory has been called");
         if (userId == null) {
             throw new IllegalArgumentException("userId cannot be null");

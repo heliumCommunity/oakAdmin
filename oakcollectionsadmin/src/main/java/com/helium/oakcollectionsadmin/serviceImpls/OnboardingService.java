@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 public class OnboardingService {
     private final UserInfoRepo userInfoRepo;
-    private final UserIdGenerationService userIdGenerationService;
+    private final IdGenerationService userIdGenerationService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
@@ -38,7 +38,7 @@ public class OnboardingService {
             }
 
             UserInfo userInfo = new UserInfo();
-            userInfo.setId(userIdGenerationService.IdGeneration(signUpRequest.getEmail()));
+            userInfo.setId(userIdGenerationService.UserIdGeneration(signUpRequest.getEmail()));
             userInfo.setFirstName(signUpRequest.getFirstName());
             userInfo.setLastName(signUpRequest.getLastName());
             userInfo.setMiddleName(signUpRequest.getMiddleName());

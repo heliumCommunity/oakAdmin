@@ -76,6 +76,8 @@ public class JwtUtil {
 
     // ✅ Validate token expiration
     public boolean validateToken(String token) {
+//        if (isBlacklisted(token)) return false;
+
         try {
             return !getClaims(token).getExpiration().before(new Date());
         } catch (Exception e) {

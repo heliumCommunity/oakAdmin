@@ -1,7 +1,9 @@
 package com.helium.oakcollectionsadmin.controller;
 
 import com.helium.oakcollectionsadmin.dto.*;
+import com.helium.oakcollectionsadmin.entity.OrderTracker;
 import com.helium.oakcollectionsadmin.serviceImpls.OnboardingService;
+import com.helium.oakcollectionsadmin.serviceImpls.OrderPopulation;
 import com.helium.oakcollectionsadmin.serviceImpls.UserInfoAuditService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,7 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Map;
+
 
 @RestController
 @RequestMapping("/api/v1/oakcollectionsadmin")
@@ -22,6 +24,7 @@ public class OakAdminController {
 
     private final UserInfoAuditService auditService;
     private final OnboardingService onboardingService;
+    private final OrderPopulation orderPopulation;
 
     @GetMapping("/admin/get-user-history")
     public Object getOakCollectionsAdminHistory(@RequestHeader String userId) {
@@ -49,4 +52,27 @@ public class OakAdminController {
         log.info("deleteUser endpoint has been called::::::");
         return onboardingService.deleteAcct(request);
     }
+    @PostMapping("admin/populate-orders")
+    public ResponseEntity<GeneralResponse> populateOrders(@RequestBody OrderRequest orderRequest) {
+        log.info("populateOrders has been called::::::");
+        return orderPopulation.populateOrders(orderRequest);
+    }
+    @GetMapping("admin/get-all-orders")
+    public List<OrderTracker> getAllOrders() {
+        log.info("getAllOrders has been called::::::");
+        return orderPopulation.getAllOrders();
+    }
+    @GetMapping("admin/get-orders-by-status")
+    public OrderTracker getOrdersByStatus(@RequestBody String status) {
+        log.info("getOrdersByStatus has been called::::::");
+        return orderPopulation.getAllOrdersByStatus(status);
+    }
+    @GetMapping("/admin/get-order-by-customer-name")
+    public OrderTracker getOrdersByCustomerName(@RequestBody String customerName) {
+        log.info("getOrdersByCustomerName has been called::::::");
+        return orderPopulation.getAllOrdersByCustomerName(customerName);
+    }
+//    @GetMapping("/admin/get-order-by-customer-name")
+
+
 }
