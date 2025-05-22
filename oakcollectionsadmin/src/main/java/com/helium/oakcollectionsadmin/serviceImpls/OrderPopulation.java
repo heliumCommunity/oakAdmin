@@ -1,6 +1,8 @@
 package com.helium.oakcollectionsadmin.serviceImpls;
 
 import com.helium.oakcollectionsadmin.dto.GeneralResponse;
+import com.helium.oakcollectionsadmin.dto.GetOrderByCustomerNameRequest;
+import com.helium.oakcollectionsadmin.dto.GetOrderRequest;
 import com.helium.oakcollectionsadmin.dto.OrderRequest;
 import com.helium.oakcollectionsadmin.entity.OrderTracker;
 import com.helium.oakcollectionsadmin.enums.OrderFulfillmentMethod;
@@ -12,6 +14,7 @@ import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -85,14 +88,14 @@ public class OrderPopulation {
         return orderTrackerRepo.findAll();
 
     }
-    public OrderTracker getAllOrdersByStatus(String status){
+    public OrderTracker getAllOrdersByStatus( GetOrderRequest request){
         log.info("Getting all orders by status");
-       return orderTrackerRepo.findByStatus(status);
+       return orderTrackerRepo.findByStatus(request.getStatus());
 
     }
-    public OrderTracker getAllOrdersByCustomerName(String CustomerName){
+    public OrderTracker getAllOrdersByCustomerName( GetOrderByCustomerNameRequest CustomerName){
         log.info("Getting all orders by customer name");
-        return orderTrackerRepo.findByCustomerName(CustomerName);
+        return orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
 
     }
 //    public ResponseEntity<GeneralResponse> getAllOrdersBy(String inseam){}

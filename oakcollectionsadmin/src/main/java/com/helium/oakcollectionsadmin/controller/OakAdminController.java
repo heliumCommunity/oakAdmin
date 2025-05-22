@@ -2,6 +2,7 @@ package com.helium.oakcollectionsadmin.controller;
 
 import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.OrderTracker;
+import com.helium.oakcollectionsadmin.enums.status;
 import com.helium.oakcollectionsadmin.serviceImpls.OnboardingService;
 import com.helium.oakcollectionsadmin.serviceImpls.OrderPopulation;
 import com.helium.oakcollectionsadmin.serviceImpls.UserInfoAuditService;
@@ -63,12 +64,12 @@ public class OakAdminController {
         return orderPopulation.getAllOrders();
     }
     @GetMapping("admin/get-orders-by-status")
-    public OrderTracker getOrdersByStatus(@RequestBody String status) {
+    public OrderTracker getOrdersByStatus(@RequestBody GetOrderRequest status) {
         log.info("getOrdersByStatus has been called::::::");
         return orderPopulation.getAllOrdersByStatus(status);
     }
     @GetMapping("/admin/get-order-by-customer-name")
-    public OrderTracker getOrdersByCustomerName(@RequestBody String customerName) {
+    public OrderTracker getOrdersByCustomerName(@RequestBody GetOrderByCustomerNameRequest customerName) {
         log.info("getOrdersByCustomerName has been called::::::");
         return orderPopulation.getAllOrdersByCustomerName(customerName);
     }
