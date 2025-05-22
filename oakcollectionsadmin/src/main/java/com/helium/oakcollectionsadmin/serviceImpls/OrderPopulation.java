@@ -95,7 +95,12 @@ public class OrderPopulation {
     }
     public OrderTracker getAllOrdersByCustomerName( GetOrderByCustomerNameRequest CustomerName){
         log.info("Getting all orders by customer name");
-        return orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
+        OrderTracker checkCustomerName = orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
+        if (checkCustomerName != null) {
+            return orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
+        }else {
+            throw new RuntimeException("Customer name not found");
+        }
 
     }
 //    public ResponseEntity<GeneralResponse> getAllOrdersBy(String inseam){}
