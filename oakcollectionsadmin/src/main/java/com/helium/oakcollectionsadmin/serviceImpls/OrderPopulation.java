@@ -1,23 +1,19 @@
 package com.helium.oakcollectionsadmin.serviceImpls;
 
-import com.helium.oakcollectionsadmin.dto.GeneralResponse;
-import com.helium.oakcollectionsadmin.dto.GetOrderByCustomerNameRequest;
-import com.helium.oakcollectionsadmin.dto.GetOrderRequest;
-import com.helium.oakcollectionsadmin.dto.OrderRequest;
+import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.OrderTracker;
 import com.helium.oakcollectionsadmin.enums.OrderFulfillmentMethod;
 import com.helium.oakcollectionsadmin.enums.status;
 import com.helium.oakcollectionsadmin.repository.OrderTrackerRepo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.weaver.ast.Or;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -50,14 +46,14 @@ public class OrderPopulation {
                 orderTracker.setStatus(status.PAST_DUE_DATE);
 
             } else {
-                return new ResponseEntity<>(new GeneralResponse("Please select a valid order Status", LocalDateTime.now().toString()),HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new GeneralResponse("Please select a valid order Status", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
             }
             if (orderRequest.getOrderFulfillmentMethod().equalsIgnoreCase("DELIVERY")) {
                 orderTracker.setOrderFulfillmentMethod(OrderFulfillmentMethod.DELIVERY);
             } else if (orderRequest.getOrderFulfillmentMethod().equalsIgnoreCase("CARRYOUT")) {
                 orderTracker.setOrderFulfillmentMethod(OrderFulfillmentMethod.CARRYOUT);
             } else {
-                return  new ResponseEntity<>(new GeneralResponse("Please select a valid order Fulfillment Method", LocalDateTime.now().toString()),HttpStatus.BAD_REQUEST);
+                return new ResponseEntity<>(new GeneralResponse("Please select a valid order Fulfillment Method", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
             }
             orderTracker.setNeck(orderRequest.getNeck());
             orderTracker.setCustomerName(orderRequest.getCustomerName());
@@ -75,33 +71,105 @@ public class OrderPopulation {
             orderTracker.setRiderName(orderRequest.getRiderName());
             orderTracker.setRiderPhoneNumber(orderTracker.getRiderPhoneNumber());
             orderTrackerRepo.save(orderTracker);
-            return new ResponseEntity<>(new GeneralResponse("Orders have been populated", LocalDateTime.now().toString()),HttpStatus.OK);
-        }
-        catch (Exception e) {
+            return new ResponseEntity<>(new GeneralResponse("Orders have been populated", LocalDateTime.now().toString()), HttpStatus.OK);
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
-            return new ResponseEntity<>(new GeneralResponse("Error while populating orders ", LocalDateTime.now().toString()),HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>(new GeneralResponse("Error while populating orders ", LocalDateTime.now().toString()), HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
     }
-    public List<OrderTracker> getAllOrders(){
+
+    public List<OrderTracker> getAllOrders() {
         log.info("Getting all orders");
         return orderTrackerRepo.findAll();
 
     }
-    public OrderTracker getAllOrdersByStatus( GetOrderRequest request){
+
+    public OrderTracker getAllOrdersByStatus(GetOrderRequest request) {
         log.info("Getting all orders by status");
-       return orderTrackerRepo.findByStatus(request.getStatus());
+        return orderTrackerRepo.findByStatus(request.getStatus());
 
     }
-    public OrderTracker getAllOrdersByCustomerName( GetOrderByCustomerNameRequest CustomerName){
+
+    public OrderTracker getAllOrdersByCustomerName(GetOrderByCustomerNameRequest CustomerName) {
         log.info("Getting all orders by customer name");
         OrderTracker checkCustomerName = orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
         if (checkCustomerName != null) {
             return orderTrackerRepo.findByCustomerName(CustomerName.getCustomerName());
-        }else {
+        } else {
             throw new RuntimeException("Customer name not found");
         }
 
     }
-//    public ResponseEntity<GeneralResponse> getAllOrdersBy(String inseam){}
+
+    public ResponseEntity<GeneralResponse> updateOrders(UpdateRequest updateRequest, Long orderId) {
+
+        Optional<OrderTracker> optionalOrder = orderTrackerRepo.findById(orderId);
+
+        if (optionalOrder.isPresent()) {
+            OrderTracker order = optionalOrder.get();
+
+            if (updateRequest.getDueDate() != null) order.setDueDate(updateRequest.getDueDate());
+            if (updateRequest.getCustomerFirstName() != null)
+                order.setCustomerFirstName(updateRequest.getCustomerFirstName());
+            if (updateRequest.getCustomerLastName() != null)
+                order.setCustomerLastName(updateRequest.getCustomerLastName());
+            if (updateRequest.getCustomerName() != null) order.setCustomerName(updateRequest.getCustomerName());
+            if (updateRequest.getCustomerEmail() != null) order.setCustomerEmail(updateRequest.getCustomerEmail());
+            if (updateRequest.getCustomerPhoneNumber() != null)
+                order.setCustomerPhoneNumber(updateRequest.getCustomerPhoneNumber());
+            if (updateRequest.getCustomerAddress() != null)
+                order.setCustomerAddress(updateRequest.getCustomerAddress());
+            if (updateRequest.getOrderFulfillmentMethod() != null) {
+                try {
+                    OrderFulfillmentMethod method = OrderFulfillmentMethod.valueOf(
+                            updateRequest.getOrderFulfillmentMethod().toUpperCase()
+                    );
+                    order.setOrderFulfillmentMethod(method);
+                } catch (IllegalArgumentException ex) {
+                    return new ResponseEntity<>(new GeneralResponse("Invalid order fulfillment method", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
+                }
+                if (updateRequest.getStatus() != null) {
+                    try {
+                        status status = com.helium.oakcollectionsadmin.enums.status.valueOf(updateRequest.getStatus().toUpperCase());
+                        order.setStatus(status);
+                    } catch (IllegalArgumentException ex) {
+                        return new ResponseEntity<>(new GeneralResponse(" Invalid status value", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
+                    }
+                    if (updateRequest.getProgress() != null) order.setProgress(updateRequest.getProgress());
+
+                    if (updateRequest.getNeck() != null) order.setNeck(updateRequest.getNeck());
+                    if (updateRequest.getShoulderWidth() != null)
+                        order.setShoulderWidth(updateRequest.getShoulderWidth());
+                    if (updateRequest.getChest() != null) order.setChest(updateRequest.getChest());
+                    if (updateRequest.getWaist() != null) order.setWaist(updateRequest.getWaist());
+                    if (updateRequest.getHip() != null) order.setHip(updateRequest.getHip());
+                    if (updateRequest.getSleeveLength() != null) order.setSleeveLength(updateRequest.getSleeveLength());
+                    if (updateRequest.getInseam() != null) order.setInseam(updateRequest.getInseam());
+                    if (updateRequest.getOutSeam() != null) order.setOutseam(updateRequest.getOutSeam());
+                    if (updateRequest.getThigh() != null) order.setThigh(updateRequest.getThigh());
+                    if (updateRequest.getWrist() != null) order.setWrist(updateRequest.getWrist());
+
+                    if (updateRequest.getRiderName() != null) order.setRiderName(updateRequest.getRiderName());
+                    if (updateRequest.getRiderNumber() != null)
+                        order.setRiderPhoneNumber(updateRequest.getRiderNumber());
+
+                    orderTrackerRepo.save(order);
+                    return new ResponseEntity<>(new GeneralResponse("Order updated successfully", LocalDateTime.now().toString()), HttpStatus.OK);
+                }
+
+                return new ResponseEntity<>(new GeneralResponse("Order not found", LocalDateTime.now().toString()), HttpStatus.OK);
+            }
+            return new ResponseEntity<>(new GeneralResponse("Order was found and has been updated S", LocalDateTime.now().toString()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(new GeneralResponse("Order not found", LocalDateTime.now().toString()), HttpStatus.OK);
+    }
+    public String deleteOrder(OrderDeleteRequest deleteAccountRequest) {
+        Optional<OrderTracker> accountCheck = orderTrackerRepo.findById(deleteAccountRequest.getOrderId());
+        if (accountCheck.isPresent()) {
+            orderTrackerRepo.delete(accountCheck.get());
+            return "Order Deleted Successfully";
+        }
+        return "Order Does Not Exist.Please Verify Your OrderId ";
+    }
 }
