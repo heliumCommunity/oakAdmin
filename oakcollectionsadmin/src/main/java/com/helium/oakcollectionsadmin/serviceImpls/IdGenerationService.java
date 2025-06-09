@@ -48,4 +48,24 @@ public class IdGenerationService {
             throw new RuntimeException(e);
         }
     }
+
+    public String orderIdGeneration(){
+        try {
+            SecureRandom rand = new SecureRandom();
+            int max = 9999;
+            int min = 1000;
+            int randomNumber = rand.nextInt((max - min) + 1) + min;
+            log.info("Generating  orderId {}", randomNumber);
+            String numberPart = String.valueOf(randomNumber);
+            log.info("Generated number part for orderId - {}", numberPart);
+            String fullPart = "Order" + "-" + numberPart;
+            log.info("Generated orderId - {}", fullPart);
+            return fullPart;
+
+        }
+        catch (Exception e) {
+            log.error("Error Generating orderId : {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 }

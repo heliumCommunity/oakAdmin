@@ -4,6 +4,7 @@ import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.OrderTracker;
 import com.helium.oakcollectionsadmin.enums.status;
 import com.helium.oakcollectionsadmin.serviceImpls.OnboardingService;
+import com.helium.oakcollectionsadmin.serviceImpls.OrderAssignmentService;
 import com.helium.oakcollectionsadmin.serviceImpls.OrderPopulation;
 import com.helium.oakcollectionsadmin.serviceImpls.UserInfoAuditService;
 import jakarta.servlet.http.HttpServletResponse;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/v1/oakcollectionsadmin")
 @RequiredArgsConstructor
@@ -26,6 +27,7 @@ public class OakAdminController {
     private final UserInfoAuditService auditService;
     private final OnboardingService onboardingService;
     private final OrderPopulation orderPopulation;
+    private final OrderAssignmentService assignmentService;
 
     @GetMapping("/admin/get-user-history")
     public Object getOakCollectionsAdminHistory(@RequestHeader String userId) {
@@ -73,7 +75,26 @@ public class OakAdminController {
         log.info("getOrdersByCustomerName has been called::::::");
         return orderPopulation.getAllOrdersByCustomerName(customerName);
     }
-//    @GetMapping("/admin/get-order-by-customer-name")
+@PostMapping("/admin/update-order-details")
+    public ResponseEntity<GeneralResponse> updateOrderDetails(@RequestBody UpdateRequest request){
+        log.info("updateOrderDetails has been called::::::");
+        return orderPopulation.updateOrders(request);
+}
+@DeleteMapping("/admin/delete-order")
+    public String deleteOrder(@RequestBody OrderDeleteRequest request){
+        log.info("deleteOrder has been called::::::");
+        return orderPopulation.deleteOrder(request);
+}
+@PostMapping("/admin/assign-orders")
+    public ResponseEntity<GeneralResponse> assignOrders(@RequestBody OrderAssignmentRequest orderAssignmentRequest) {
+        log.info("assignOrders has been called::::::");
+        return assignmentService.assignOrders(orderAssignmentRequest);
+}
 
+@PutMapping("/update-order-status")
+    public ResponseEntity <GeneralResponse> updateOrders(@RequestBody UpdateOrderStatusRequest updateOrderStatusRequest) {
+        log.info("updateOrders has been called::::::");
+        return assignmentService.updateOrderStatus(updateOrderStatusRequest);
+}
 
 }

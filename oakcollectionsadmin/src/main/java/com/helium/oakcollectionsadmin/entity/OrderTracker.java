@@ -13,8 +13,10 @@ import java.util.Date;
 public class OrderTracker {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    //subject to automatic id generation
     @Column(name = "order_id")
-    private Long orderId;
+    private String orderId;
 
     @Column(name = "tracking_id")
     private String trackingId;

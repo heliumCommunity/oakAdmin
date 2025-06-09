@@ -6,6 +6,7 @@ import java.util.Date;
 
 @Data
 public class UpdateRequest {
+    private String orderId;
     private Date dueDate;
     private String customerFirstName;
 
