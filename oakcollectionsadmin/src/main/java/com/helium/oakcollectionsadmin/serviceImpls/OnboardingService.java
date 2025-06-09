@@ -4,6 +4,7 @@ import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.UserInfo;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
+import com.helium.oakcollectionsadmin.exceptions.InvalidCredentialsException;
 import com.helium.oakcollectionsadmin.jwt.JwtUtil;
 import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
 import jakarta.servlet.http.HttpServletResponse;
@@ -68,28 +69,30 @@ public class OnboardingService {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
-            Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
-            if(doesUserExist.isPresent()) {
-                UserInfo getAcct = doesUserExist.get();
-                if (passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
-                    String jwtToken = jwtUtil.generateToken(getAcct);
-                    ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                            .httpOnly(true)
-                            .secure(true) // in production
-                            .path("/")
-                            .maxAge(24 * 60 * 60)
-                            .build();
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
+        Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
 
-                }
-                return  ResponseEntity.ok()
-                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString()));
-                }
+        if (doesUserExist.isEmpty()) {
+            throw new InvalidCredentialsException();
+        }
 
-        throw new BadCredentialsException("User Not Found");
+        UserInfo getAcct = doesUserExist.get();
+        if (!passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
+            throw new InvalidCredentialsException();
+        }
+
+        String jwtToken = jwtUtil.generateToken(getAcct);
+        ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
+                .httpOnly(true)
+                .secure(true) // set to false for local dev if needed
+                .path("/")
+                .maxAge(24 * 60 * 60)
+                .build();
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
     }
+
     public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
         log.info("LogOut Process Has started");
         log.info("LogOut request::::::::::::: {}", LocalDateTime.now().toString());
