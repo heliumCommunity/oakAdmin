@@ -68,4 +68,24 @@ public class IdGenerationService {
             throw new RuntimeException(e);
         }
     }
+
+    public String RoleIdGeneration(String roleName){
+        try {
+            SecureRandom rand = new SecureRandom();
+            int max = 999;
+            int min = 100;
+            int randomNumber = rand.nextInt((max - min) + 1) + min;
+            log.info("Generating  roleId {}", randomNumber);
+            String numberPart = String.valueOf(randomNumber);
+            log.info("Generated number part for roleId - {}", numberPart);
+            String fullPart = roleName.substring(0,2).toUpperCase() + "-" + numberPart;
+            log.info("Generated roleId - {}", fullPart);
+            return fullPart;
+
+        }
+        catch (Exception e) {
+            log.error("Error Generating roleId : {}", e.getMessage(), e);
+            throw new RuntimeException(e);
+        }
+    }
 }
