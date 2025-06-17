@@ -1,8 +1,11 @@
 package com.helium.oakcollectionsadmin.dto;
 
 
+import jakarta.persistence.Column;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Data
@@ -57,5 +60,19 @@ public class OrderRequest {
     private String riderName;
 
     private String riderNumber;
+    private String customMeasurement;
+    private String priorityLevel;
+    private String fittingRequired;
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate startDate;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+    private LocalDate endDate;
+
+    private String clientType;
+
+    private String additionalFitNotes;
+    private String additionalNotes;
+
 
 }

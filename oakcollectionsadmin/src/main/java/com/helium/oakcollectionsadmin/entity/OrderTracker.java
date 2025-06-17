@@ -5,6 +5,7 @@ import com.helium.oakcollectionsadmin.enums.status;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDate;
 import java.util.Date;
 
 @Entity
@@ -91,6 +92,23 @@ public class OrderTracker {
 
     @Column(name = "rider_phone_number",nullable = true)
     private String riderPhoneNumber;
+
+   @Column(name = "custom_measurement")
+    private String customMeasurement;
+    @Column(name = "priority_level")
+    private String priorityLevel;
+    @Column(name = "fitting_Required")
+    private String fittingRequired;
+    @Column(name = "start_date")
+    private LocalDate startDate;
+    @Column(name = "deadline_date")
+    private LocalDate endDate;
+    @Column(name = "client_type")
+    private String clientType;
+    @Column(name = "additional_fit_notes")
+    private String additionalFitNotes;
+    @Column(name = "additional_notes")
+    private String additionalNotes;
 
 
 
