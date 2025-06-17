@@ -74,6 +74,16 @@ public class OrderPopulation {
             orderTracker.setTrackingId(trackingId.trackingIdGeneration());
             orderTracker.setRiderName(orderRequest.getRiderName());
             orderTracker.setRiderPhoneNumber(orderTracker.getRiderPhoneNumber());
+            orderTracker.setCustomMeasurement(orderRequest.getCustomMeasurement());
+            orderTracker.setFittingRequired(orderRequest.getFittingRequired());
+            orderTracker.setPriorityLevel(orderRequest.getPriorityLevel());
+            orderTracker.setStartDate(orderRequest.getStartDate());
+            orderTracker.setEndDate(orderRequest.getEndDate());
+            orderTracker.setClientType(orderRequest.getClientType());
+            orderTracker.setAdditionalFitNotes(orderRequest.getAdditionalFitNotes());
+            orderTracker.setAdditionalNotes(orderRequest.getAdditionalNotes());
+
+
             orderTrackerRepo.save(orderTracker);
             return new ResponseEntity<>(new GeneralResponse("Orders have been populated", LocalDateTime.now().toString()), HttpStatus.OK);
         } catch (Exception e) {
