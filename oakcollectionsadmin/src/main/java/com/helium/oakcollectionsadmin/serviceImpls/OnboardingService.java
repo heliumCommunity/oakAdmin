@@ -2,6 +2,7 @@ package com.helium.oakcollectionsadmin.serviceImpls;
 
 import com.helium.oakcollectionsadmin.dto.*;
 import com.helium.oakcollectionsadmin.entity.UserInfo;
+import com.helium.oakcollectionsadmin.enums.JobTitle;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
 import com.helium.oakcollectionsadmin.jwt.JwtUtil;
@@ -28,17 +29,20 @@ public class OnboardingService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
-    public ResponseEntity<GeneralResponse> signUp(SignUpRequest signUpRequest) {
+    public ResponseEntity<GeneralResponse> signUp(SignUpRequest signUpRequest) {/*,OrderAssignmentRequest orderAssignmentRequest) {*/
         log.info("SignUp Process Has started");
         log.info("Sign up request:::: {}", signUpRequest);
         try {
+            String jobTitle = signUpRequest.getJobTitle();
+
             Optional<UserInfo> duplicateCheck = userInfoRepo.findByEmail(signUpRequest.getEmail());
             if (duplicateCheck.isPresent()) {
                 return new ResponseEntity<>(new GeneralResponse("This User Has Already been registered", LocalDateTime.now().toString()), HttpStatus.CONFLICT);
             }
 
+
             UserInfo userInfo = new UserInfo();
-            userInfo.setId(userIdGenerationService.UserIdGeneration(signUpRequest.getEmail()));
+            userInfo.setStaffId(userIdGenerationService.UserIdGeneration(signUpRequest.getEmail()));
             userInfo.setFirstName(signUpRequest.getFirstName());
             userInfo.setLastName(signUpRequest.getLastName());
             userInfo.setMiddleName(signUpRequest.getMiddleName());
@@ -50,19 +54,57 @@ public class OnboardingService {
                 return new ResponseEntity<>(new GeneralResponse("Select a Valid Role Between User and Admin", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
             }
             userInfo.setActivationStatus(isActive.NOT_ACTIVATED);
-            userInfo.setDesignation(signUpRequest.getJobTitle());
-            userInfo.setPhoneNumber(signUpRequest.getPhoneNumber());
-            userInfo.setEmail(signUpRequest.getEmail());
-            userInfo.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
-            userInfoRepo.save(userInfo);
-            log.info("SignUp Process Has finished");
-            return new ResponseEntity<>(new GeneralResponse("Your Profile Has been created successfully", LocalDateTime.now().toString()), HttpStatus.OK);
-        } catch (Exception e) {
-            log.error("Error is - {}", e.getMessage());
-            return new ResponseEntity<>(new GeneralResponse(e.getMessage(), LocalDateTime.now().toString()), HttpStatus.INTERNAL_SERVER_ERROR);
-        }
+
+
+            if (jobTitle != null) {
+                switch (jobTitle.toLowerCase()) {
+                    case "cutter":
+                        userInfo.setDesignation(JobTitle.cutter);
+                        break;
+                    case "tailor":
+                        userInfo.setDesignation(JobTitle.tailor);
+                        break;
+                    case "designer":
+                        userInfo.setDesignation(JobTitle.designer);
+                        break;
+                    case "assembler":
+                        userInfo.setDesignation(JobTitle.assembler);
+                        break;
+                    case "embroiderer":
+                        userInfo.setDesignation(JobTitle.embroiderer);
+                        break;
+                    case "buttonholer":
+                        userInfo.setDesignation(JobTitle.buttonholer);
+                        break;
+                    case "presser":
+                        userInfo.setDesignation(JobTitle.presser);
+                        break;
+                    case "finisher":
+                        userInfo.setDesignation(JobTitle.finisher);
+                        break;
+                    case "qualitychecker":
+                        userInfo.setDesignation(JobTitle.qualityChecker);
+                        break;
+                    case "packer":
+                        userInfo.setDesignation(JobTitle.packer);
+                        break;
+                    default:
+                        throw new IllegalArgumentException("Invalid job title: " + jobTitle);
+                }
+            }
+                userInfo.setPhoneNumber(signUpRequest.getPhoneNumber());
+                userInfo.setEmail(signUpRequest.getEmail());
+                userInfo.setPassword(passwordEncoder.encode(signUpRequest.getPassword()));
+                userInfoRepo.save(userInfo);
+                log.info("SignUp Process Has finished");
+                return new ResponseEntity<>(new GeneralResponse("Your Profile Has been created successfully", LocalDateTime.now().toString()), HttpStatus.OK);
+            } catch(Exception e){
+                log.error("Error is - {}", e.getMessage());
+                return new ResponseEntity<>(new GeneralResponse(e.getMessage(), LocalDateTime.now().toString()), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
 
     }
+
 
     public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
         log.info("LogIn Process Has started");
@@ -104,7 +146,7 @@ public class OnboardingService {
         response.setHeader("Set-Cookie", cookie.toString());
         return new ResponseEntity<>(new GeneralResponse("You have logged out", LocalDateTime.now().toString()), HttpStatus.OK);
 
-    }
+        }
 
     public ResponseEntity<GeneralResponse> deleteAcct(DeleteAcctRequest deleteAcctRequest) {
         log.info("Account Deletion Has Started");

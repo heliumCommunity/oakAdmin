@@ -11,7 +11,7 @@ public class OrderAssignmentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @OneToOne
+    @ManyToOne (fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id",referencedColumnName = "order_id")
     private OrderTracker orderId;
 

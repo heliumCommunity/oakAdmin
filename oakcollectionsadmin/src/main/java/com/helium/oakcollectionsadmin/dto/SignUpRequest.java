@@ -1,5 +1,6 @@
 package com.helium.oakcollectionsadmin.dto;
 
+import com.helium.oakcollectionsadmin.enums.JobTitle;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
