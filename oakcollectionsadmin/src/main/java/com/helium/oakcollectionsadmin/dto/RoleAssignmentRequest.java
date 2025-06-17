@@ -3,7 +3,7 @@ package com.helium.oakcollectionsadmin.dto;
 import lombok.Data;
 
 @Data
-public class RoleAssigmentRequest {
+public class RoleAssignmentRequest {
     private String roleName;
     private String roleId;
     private String orderId;
