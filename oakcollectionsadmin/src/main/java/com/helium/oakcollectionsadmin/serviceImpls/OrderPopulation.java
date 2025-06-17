@@ -19,6 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 
 public class OrderPopulation {
     private final OrderTrackerRepo orderTrackerRepo;

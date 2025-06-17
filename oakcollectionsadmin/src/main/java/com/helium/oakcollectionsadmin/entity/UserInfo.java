@@ -1,5 +1,6 @@
 package com.helium.oakcollectionsadmin.entity;
 
+import com.helium.oakcollectionsadmin.enums.JobTitle;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,9 +23,11 @@ import java.util.List;
 public class UserInfo implements UserDetails {
 
     @Id
-    @Column(name = "userId")
-    //Going to generate a unique Id for each staff with a generation Logic
-    private String id;
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    @Column(name = "staff_id")
+    private String staffId;
 
     @Column(name = "firstName", nullable = false)
     private String firstName;
@@ -46,8 +49,13 @@ public class UserInfo implements UserDetails {
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
     private Roles role;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "jobTitle")
-    private String designation; // e.g., "Creative Director", "Studio Manager"
+    private JobTitle designation; // e.g., "Creative Director", "Studio Manager"
+
+    @Column(name = "role_Id")
+    private String roleId;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "activationStatus")

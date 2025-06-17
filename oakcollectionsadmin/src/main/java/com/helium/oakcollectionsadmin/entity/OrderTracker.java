@@ -12,7 +12,7 @@ import java.util.Date;
 @Table(name = "order_tracking")
 public class OrderTracker {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
     //subject to automatic id generation
     @Column(name = "order_id")
