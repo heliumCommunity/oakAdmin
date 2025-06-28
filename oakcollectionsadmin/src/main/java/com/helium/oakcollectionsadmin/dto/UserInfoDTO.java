@@ -1,13 +1,11 @@
 package com.helium.oakcollectionsadmin.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class UserInfoDTO {
     private Long id;
     private String username;
