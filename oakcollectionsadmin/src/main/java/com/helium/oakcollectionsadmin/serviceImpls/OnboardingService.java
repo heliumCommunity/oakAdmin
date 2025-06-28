@@ -5,6 +5,7 @@ import com.helium.oakcollectionsadmin.entity.UserInfo;
 import com.helium.oakcollectionsadmin.enums.JobTitle;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
+import com.helium.oakcollectionsadmin.exceptions.InvalidCredentialsException;
 import com.helium.oakcollectionsadmin.jwt.JwtUtil;
 import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
 import jakarta.servlet.http.HttpServletResponse;
@@ -130,7 +131,7 @@ public class OnboardingService {
                         .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString()));
                 }
 
-        throw new BadCredentialsException("User Not Found");
+        throw new InvalidCredentialsException();
     }
     public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
         log.info("LogOut Process Has started");
