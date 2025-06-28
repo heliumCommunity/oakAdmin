@@ -11,15 +11,23 @@ import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.Role;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -107,7 +115,7 @@ public class OnboardingService {
     }
 
 
-    public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
+    public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest,UserDetails userDetails) {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
@@ -122,13 +130,29 @@ public class OnboardingService {
                             .path("/")
                             .maxAge(24 * 60 * 60)
                             .build();
+
+                    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+                    List<String> roles = authorities.stream()
+                            .map(authority -> "ROLE_" + authority.getAuthority())
+                            .collect(Collectors.toList());
+
+                    // Construct user DTO
+                    UserInfoDTO userDto = new UserInfoDTO(
+                            getAcct.getId(),
+                            getAcct.getUsername(),
+                            getAcct.getEmail(),
+                            roles
+                    );
+                    List<Object> responseDetails = new ArrayList<>();
+                    responseDetails.add(userDto);
                     return ResponseEntity.ok()
                             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
+                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully",responseDetails
+                                    ));
 
                 }
                 return  ResponseEntity.ok()
-                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString()));
+                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString(),null));
                 }
 
         throw new InvalidCredentialsException();
