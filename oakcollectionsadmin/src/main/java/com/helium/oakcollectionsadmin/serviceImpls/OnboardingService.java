@@ -115,7 +115,7 @@ public class OnboardingService {
     }
 
 
-    public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest,UserDetails userDetails) {
+    public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
@@ -131,7 +131,7 @@ public class OnboardingService {
                             .maxAge(24 * 60 * 60)
                             .build();
 
-                    Collection<? extends GrantedAuthority> authorities = userDetails.getAuthorities();
+                    Collection<? extends GrantedAuthority> authorities = getAcct.getAuthorities();
                     List<String> roles = authorities.stream()
                             .map(authority -> "ROLE_" + authority.getAuthority())
                             .collect(Collectors.toList());

@@ -41,9 +41,9 @@ public class OakAdminController {
         return onboardingService.signUp(signUpRequest);
     }
     @PostMapping ("/auth/log-in")
-    public ResponseEntity<AuthenticationResponse> logIn(@RequestBody LogInRequest logInRequest, UserDetails userDetails) {
+    public ResponseEntity<AuthenticationResponse> logIn(@RequestBody LogInRequest logInRequest) {
         log.info("log-in has been called::::::");
-        return onboardingService.LogIn(logInRequest, userDetails);
+        return onboardingService.LogIn(logInRequest);
     }
     @PostMapping("/auth/log-out")
     public ResponseEntity<GeneralResponse> logout(HttpServletResponse response) {
