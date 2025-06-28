@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -40,9 +41,9 @@ public class OakAdminController {
         return onboardingService.signUp(signUpRequest);
     }
     @PostMapping ("/auth/log-in")
-    public ResponseEntity<AuthenticationResponse> logIn(@RequestBody LogInRequest logInRequest) {
+    public ResponseEntity<AuthenticationResponse> logIn(@RequestBody LogInRequest logInRequest, UserDetails userDetails) {
         log.info("log-in has been called::::::");
-        return onboardingService.LogIn(logInRequest);
+        return onboardingService.LogIn(logInRequest, userDetails);
     }
     @PostMapping("/auth/log-out")
     public ResponseEntity<GeneralResponse> logout(HttpServletResponse response) {
