@@ -11,14 +11,11 @@ import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.Role;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -41,6 +38,7 @@ public class OnboardingService {
     public ResponseEntity<GeneralResponse> signUp(SignUpRequest signUpRequest) {/*,OrderAssignmentRequest orderAssignmentRequest) {*/
         log.info("SignUp Process Has started");
         log.info("Sign up request:::: {}", signUpRequest);
+
         try {
             String jobTitle = signUpRequest.getJobTitle();
 
@@ -48,8 +46,6 @@ public class OnboardingService {
             if (duplicateCheck.isPresent()) {
                 return new ResponseEntity<>(new GeneralResponse("This User Has Already been registered", LocalDateTime.now().toString()), HttpStatus.CONFLICT);
             }
-
-
             UserInfo userInfo = new UserInfo();
             userInfo.setStaffId(userIdGenerationService.UserIdGeneration(signUpRequest.getEmail()));
             userInfo.setFirstName(signUpRequest.getFirstName());
@@ -63,7 +59,6 @@ public class OnboardingService {
                 return new ResponseEntity<>(new GeneralResponse("Select a Valid Role Between User and Admin", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
             }
             userInfo.setActivationStatus(isActive.NOT_ACTIVATED);
-
 
             if (jobTitle != null) {
                 switch (jobTitle.toLowerCase()) {
@@ -113,13 +108,11 @@ public class OnboardingService {
             }
 
     }
-
-
     public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
-            Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
+        Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
             if(doesUserExist.isPresent()) {
                 UserInfo getAcct = doesUserExist.get();
                 if (passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
@@ -143,11 +136,12 @@ public class OnboardingService {
                             getAcct.getEmail(),
                             roles
                     );
-                    List<Object> responseDetails = new ArrayList<>();
-                    responseDetails.add(userDto);
+
+                    List<Object> user = new ArrayList<>();
+                    user.add(userDto);
                     return ResponseEntity.ok()
                             .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully",responseDetails
+                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully",user
                                     ));
 
                 }
@@ -156,7 +150,9 @@ public class OnboardingService {
                 }
 
         throw new InvalidCredentialsException();
+
     }
+
     public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
         log.info("LogOut Process Has started");
         log.info("LogOut request::::::::::::: {}", LocalDateTime.now().toString());

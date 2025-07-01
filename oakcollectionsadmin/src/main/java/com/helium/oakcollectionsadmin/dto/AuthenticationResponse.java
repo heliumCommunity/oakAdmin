@@ -19,7 +19,7 @@ public class AuthenticationResponse {
     private String token;
     private String response;
     @JsonInclude(JsonInclude.Include.NON_NULL)
-    private List<Object> responseDetails;
+    private List<Object> user;
 
 
 }
