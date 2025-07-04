@@ -34,16 +34,16 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors() // ✅ Enable CORS here
+                .and()
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests()
-                .requestMatchers("/api/v1/oakcollectionsadmin/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/v1/oakcollectionsadmin/auth/**").permitAll()
-                .anyRequest()
-                .authenticated()
+                .requestMatchers("/api/v1/oakcollectionsadmin/admin/**").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
-
 
         return http.build();
     }
@@ -70,13 +70,15 @@ public class SecurityConfig {
         public CorsFilter corsFilter() {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowCredentials(true);
-            config.addAllowedOrigin("http://localhost:3000");
+            config.addAllowedOrigin("http://localhost:3000"); // ✅ match exactly
             config.addAllowedHeader("*");
             config.addAllowedMethod("*");
 
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
-            return new CorsFilter(source);  // ✅ Spring's CorsFilter
+
+            return new CorsFilter(source);
         }
     }
+
 }
