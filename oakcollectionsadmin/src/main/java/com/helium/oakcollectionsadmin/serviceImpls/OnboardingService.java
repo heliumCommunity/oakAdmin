@@ -117,12 +117,6 @@ public class OnboardingService {
                 UserInfo getAcct = doesUserExist.get();
                 if (passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
                     String jwtToken = jwtUtil.generateToken(getAcct);
-                    ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                            .httpOnly(true)
-                            .secure(true) // in production
-                            .path("/")
-                            .maxAge(24 * 60 * 60)
-                            .build();
 
                     Collection<? extends GrantedAuthority> authorities = getAcct.getAuthorities();
                     List<String> roles = authorities.stream()
@@ -139,10 +133,9 @@ public class OnboardingService {
 
                     List<Object> user = new ArrayList<>();
                     user.add(userDto);
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully",user
-                                    ));
+                    return ResponseEntity.ok(
+                            new AuthenticationResponse(jwtToken, "You have logged in successfully", user)
+                    );
 
                 }
                 return  ResponseEntity.ok()
