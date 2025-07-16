@@ -82,6 +82,9 @@ public class OrderPopulation {
             orderTracker.setClientType(orderRequest.getClientType());
             orderTracker.setAdditionalFitNotes(orderRequest.getAdditionalFitNotes());
             orderTracker.setAdditionalNotes(orderRequest.getAdditionalNotes());
+            orderTracker.setOrderType(orderRequest.getOrderType());
+            orderTracker.setProductType(orderRequest.getProductType());
+            orderTracker.setProductColor(orderRequest.getProductColor());
 
 
             orderTrackerRepo.save(orderTracker);

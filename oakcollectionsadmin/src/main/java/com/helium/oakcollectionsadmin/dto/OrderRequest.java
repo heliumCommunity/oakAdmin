@@ -73,6 +73,9 @@ public class OrderRequest {
 
     private String additionalFitNotes;
     private String additionalNotes;
+    private String orderType;
+    private String productType;
+    private String productColor;
 
 
 }

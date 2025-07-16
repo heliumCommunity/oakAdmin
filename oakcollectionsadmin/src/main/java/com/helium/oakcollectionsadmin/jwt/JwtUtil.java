@@ -40,7 +40,7 @@ public class JwtUtil {
 
 
     // ✅ Generate JWT token with roles claim
-    public String generateToken(UserDetails userDetails) {
+    public String  generateToken(UserDetails userDetails) {
         log.info("Generating JWT token for {}", userDetails.getUsername());
 
         // Convert authorities to a list of role strings
@@ -77,7 +77,6 @@ public class JwtUtil {
 
     // ✅ Validate token expiration
     public boolean validateToken(String token) {
-//        if (isBlacklisted(token)) return false;
 
         try {
             return !getClaims(token).getExpiration().before(new Date());

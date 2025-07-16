@@ -159,7 +159,6 @@ public class OnboardingService {
                 .build();
         response.setHeader("Set-Cookie", cookie.toString());
         return new ResponseEntity<>(new GeneralResponse("You have logged out", LocalDateTime.now().toString()), HttpStatus.OK);
-
         }
 
     public ResponseEntity<GeneralResponse> deleteAcct(DeleteAcctRequest deleteAcctRequest) {
