@@ -70,7 +70,7 @@ public class SecurityConfig {
         public CorsFilter corsFilter() {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowCredentials(true);
-            config.addAllowedOrigin("http://localhost:3000"); // ✅ match exactly
+            config.addAllowedOriginPattern("*"); // Any Origin
             config.addAllowedHeader("*");
             config.addAllowedMethod("*");
 
