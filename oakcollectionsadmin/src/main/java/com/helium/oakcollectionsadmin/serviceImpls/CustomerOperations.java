@@ -85,7 +85,7 @@ public class CustomerOperations {
 
     public Object fetchCustomer(fetchCustomerRequest request) {
         log.info("fetchCustomer process has begun");
-        if (request.getPhoneNumber().isEmpty()  || request.getPhoneNumber().isBlank()) {
+        if (request.getPhoneNumber()==null) {
             return repo.findAll();
         }
         return repo.findByCustomerPhoneNumber(request.getPhoneNumber());
