@@ -106,7 +106,7 @@ public class OakAdminController {
     }
 
     @PostMapping("/admin/create-customer")
-    public GeneralResponse createCustomer(@RequestBody CustomerRequest customerRequest) {
+    public GeneralResponse createCustomer(@RequestBody @Valid CustomerRequest customerRequest) {
         log.info("createCustomer has been called::::::");
         return customerOperations.createCustomer(customerRequest);
     }
@@ -118,7 +118,7 @@ public class OakAdminController {
     }
 
     @PutMapping("/admin/update-customer")
-    public GeneralResponse updateCustomer(@RequestBody UpdateCustomerRequest customerRequest) {
+    public GeneralResponse updateCustomer(@RequestBody @Valid UpdateCustomerRequest customerRequest) {
         log.info("updateCustomer has been called::::::");
         return customerOperations.updateCustomer(customerRequest);
     }

@@ -52,6 +52,7 @@ public class CustomerOperations {
             log.info("updateCustomer process has begun");
             Optional <CustomerModule> findByNumber = repo.findByCustomerPhoneNumber(request.getCustomerPhoneNumber());
             if (findByNumber.isEmpty()) {
+                log.info("PhoneNumber Supplied Not Found");
                 return new GeneralResponse("Customer not found", LocalDateTime.now().toString());
             }
             CustomerModule customerModule = findByNumber.get();
