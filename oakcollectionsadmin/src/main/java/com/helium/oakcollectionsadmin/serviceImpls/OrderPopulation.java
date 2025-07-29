@@ -51,8 +51,7 @@ public class OrderPopulation {
             orderTracker.setCustomerEmail(orderRequest.getCustomerEmail());
             orderTracker.setCustomerPhoneNumber(orderRequest.getCustomerPhoneNumber());
             orderTracker.setCustomerAddress(orderRequest.getCustomerAddress());
-            customer.setOrderCount(customer.getOrderCount() + 1);
-            customerRepo.save(customer);
+            customerRepo.orderCount(orderRequest.getCustomerPhoneNumber());
 
 
             orderTracker.setChest(orderRequest.getChest());
