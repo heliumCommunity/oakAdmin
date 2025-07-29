@@ -16,5 +16,5 @@ public interface CustomerRepo extends JpaRepository<CustomerModule,Long> {
 
     @Modifying
     @Query("UPDATE CustomerModule c SET c.orderCount = c.orderCount + 1 WHERE c.customerPhoneNumber = :customerPhoneNumber")
-    CustomerModule orderCount(@Param("customerPhoneNumber") String customerPhoneNumber);
+    int orderCount(@Param("customerPhoneNumber") String customerPhoneNumber);
 }
