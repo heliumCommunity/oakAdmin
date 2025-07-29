@@ -74,6 +74,7 @@ public class SecurityConfig {
             config.addAllowedHeader("*");
             config.addAllowedMethod("*");
 
+
             UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
             source.registerCorsConfiguration("/**", config);
 

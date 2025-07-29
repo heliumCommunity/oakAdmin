@@ -1,9 +1,11 @@
 package com.helium.oakcollectionsadmin.serviceImpls;
 
 import com.helium.oakcollectionsadmin.dto.*;
+import com.helium.oakcollectionsadmin.entity.CustomerModule;
 import com.helium.oakcollectionsadmin.entity.OrderTracker;
 import com.helium.oakcollectionsadmin.enums.OrderFulfillmentMethod;
 import com.helium.oakcollectionsadmin.enums.status;
+import com.helium.oakcollectionsadmin.repository.CustomerRepo;
 import com.helium.oakcollectionsadmin.repository.OrderTrackerRepo;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +26,33 @@ import java.util.Optional;
 public class OrderPopulation {
     private final OrderTrackerRepo orderTrackerRepo;
     private final IdGenerationService trackingId;
+    private final CustomerRepo customerRepo;
 
     public ResponseEntity<GeneralResponse> populateOrders(OrderRequest orderRequest) {
         try {
 
             log.info("Populating orders has started");
+
             OrderTracker orderTracker = new OrderTracker();
+            CustomerModule customer = new CustomerModule();
             orderTracker.setOrderId(trackingId.orderIdGeneration());
+            if(customerRepo.findByCustomerPhoneNumber(orderRequest.getCustomerPhoneNumber()).isEmpty()) {
+                customer.setCustomerId(trackingId.UserIdGeneration(orderRequest.getCustomerEmail()));
+                customer.setCustomerFirstName(orderRequest.getCustomerFirstName());
+                customer.setCustomerLastName(orderRequest.getCustomerLastName());
+                customer.setCustomerEmail(orderRequest.getCustomerEmail());
+                customer.setCustomerPhoneNumber(orderRequest.getCustomerPhoneNumber());
+                customer.setCustomerAddress(orderRequest.getCustomerAddress());
+                customer.setOrderCount(customer.getOrderCount() + 1);
+                customerRepo.save(customer);
+            }
+            orderTracker.setCustomerId(trackingId.UserIdGeneration(orderRequest.getCustomerEmail()));
             orderTracker.setCustomerFirstName(orderRequest.getCustomerFirstName());
             orderTracker.setCustomerLastName(orderRequest.getCustomerLastName());
             orderTracker.setCustomerEmail(orderRequest.getCustomerEmail());
             orderTracker.setCustomerPhoneNumber(orderRequest.getCustomerPhoneNumber());
             orderTracker.setCustomerAddress(orderRequest.getCustomerAddress());
+
             orderTracker.setChest(orderRequest.getChest());
             orderTracker.setHip(orderRequest.getHip());
             if (orderRequest.getStatus().equalsIgnoreCase("completed")) {
@@ -70,7 +87,9 @@ public class OrderPopulation {
             orderTracker.setWaist(orderRequest.getWaist());
             orderTracker.setWrist(orderRequest.getWrist());
             //would set progress later
-            orderTracker.setCustomerId(trackingId.UserIdGeneration(orderRequest.getCustomerEmail()));
+
+
+
             orderTracker.setTrackingId(trackingId.trackingIdGeneration());
             orderTracker.setRiderName(orderRequest.getRiderName());
             orderTracker.setRiderPhoneNumber(orderTracker.getRiderPhoneNumber());
@@ -88,6 +107,7 @@ public class OrderPopulation {
 
 
             orderTrackerRepo.save(orderTracker);
+            customerRepo.save(customer);
             return new ResponseEntity<>(new GeneralResponse("Orders have been populated", LocalDateTime.now().toString()), HttpStatus.OK);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
