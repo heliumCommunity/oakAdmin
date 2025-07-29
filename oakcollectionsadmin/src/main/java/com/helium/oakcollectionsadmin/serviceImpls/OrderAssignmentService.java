@@ -30,12 +30,7 @@ public class OrderAssignmentService {
     private final IdGenerationService idGenerationService;
     private final UserInfoRepo userInfoRepo;
 
-//    public ResponseEntity<GeneralResponse> roleAssignment(RoleAssigmentRequest request){
-//
-//        RoleTable roleTable = new RoleTable();
-//
-//
-//    }
+
 
 
     public ResponseEntity<GeneralResponse> assignOrders(OrderAssignmentRequest request){
@@ -48,7 +43,6 @@ public class OrderAssignmentService {
 
             OrderTracker findId = trackerRepo.findByOrderId(request.getOrderId()).orElseThrow(() -> new RuntimeException("Order Supplied does not exist"));
             log.info("Order Id exists as - {}", findId.getOrderId());
-            //TODO change all role names e.g assembler with staffId
 
             orderAssignment.setOrderId(findId);
             if (!(request.getAssembler()==null)) {
@@ -196,12 +190,4 @@ public class OrderAssignmentService {
 
 
     }
-
-
-
-
-
-
-
-
 }

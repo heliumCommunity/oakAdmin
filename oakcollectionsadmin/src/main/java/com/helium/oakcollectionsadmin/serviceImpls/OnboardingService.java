@@ -5,6 +5,7 @@ import com.helium.oakcollectionsadmin.entity.UserInfo;
 import com.helium.oakcollectionsadmin.enums.JobTitle;
 import com.helium.oakcollectionsadmin.enums.Roles;
 import com.helium.oakcollectionsadmin.enums.isActive;
+import com.helium.oakcollectionsadmin.exceptions.InvalidCredentialsException;
 import com.helium.oakcollectionsadmin.jwt.JwtUtil;
 import com.helium.oakcollectionsadmin.repository.UserInfoRepo;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,11 +15,16 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import java.util.Collection;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +38,7 @@ public class OnboardingService {
     public ResponseEntity<GeneralResponse> signUp(SignUpRequest signUpRequest) {/*,OrderAssignmentRequest orderAssignmentRequest) {*/
         log.info("SignUp Process Has started");
         log.info("Sign up request:::: {}", signUpRequest);
+
         try {
             String jobTitle = signUpRequest.getJobTitle();
 
@@ -39,8 +46,6 @@ public class OnboardingService {
             if (duplicateCheck.isPresent()) {
                 return new ResponseEntity<>(new GeneralResponse("This User Has Already been registered", LocalDateTime.now().toString()), HttpStatus.CONFLICT);
             }
-
-
             UserInfo userInfo = new UserInfo();
             userInfo.setStaffId(userIdGenerationService.UserIdGeneration(signUpRequest.getEmail()));
             userInfo.setFirstName(signUpRequest.getFirstName());
@@ -54,7 +59,6 @@ public class OnboardingService {
                 return new ResponseEntity<>(new GeneralResponse("Select a Valid Role Between User and Admin", LocalDateTime.now().toString()), HttpStatus.BAD_REQUEST);
             }
             userInfo.setActivationStatus(isActive.NOT_ACTIVATED);
-
 
             if (jobTitle != null) {
                 switch (jobTitle.toLowerCase()) {
@@ -104,34 +108,44 @@ public class OnboardingService {
             }
 
     }
-
-
     public ResponseEntity<AuthenticationResponse> LogIn(LogInRequest logInRequest) {
         log.info("LogIn Process Has started");
         log.info("LogIn request::::::::::::: {}", logInRequest);
 
-            Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
+        Optional<UserInfo> doesUserExist = userInfoRepo.findByEmail(logInRequest.getEmail());
             if(doesUserExist.isPresent()) {
                 UserInfo getAcct = doesUserExist.get();
                 if (passwordEncoder.matches(logInRequest.getPassword(), getAcct.getPassword())) {
                     String jwtToken = jwtUtil.generateToken(getAcct);
-                    ResponseCookie cookie = ResponseCookie.from("jwt", jwtToken)
-                            .httpOnly(true)
-                            .secure(true) // in production
-                            .path("/")
-                            .maxAge(24 * 60 * 60)
-                            .build();
-                    return ResponseEntity.ok()
-                            .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                            .body(new AuthenticationResponse(jwtToken, "You have logged in successfully"));
+
+                    Collection<? extends GrantedAuthority> authorities = getAcct.getAuthorities();
+                    List<String> roles = authorities.stream()
+                            .map(authority -> "ROLE_" + authority.getAuthority())
+                            .collect(Collectors.toList());
+
+                    // Construct user DTO
+                    UserInfoDTO userDto = new UserInfoDTO(
+                            getAcct.getId(),
+                            getAcct.getUsername(),
+                            getAcct.getEmail(),
+                            roles
+                    );
+
+                    List<Object> user = new ArrayList<>();
+                    user.add(userDto);
+                    return ResponseEntity.ok(
+                            new AuthenticationResponse(jwtToken, "You have logged in successfully", user)
+                    );
 
                 }
                 return  ResponseEntity.ok()
-                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString()));
+                        .body(new AuthenticationResponse("Invalid Email or Password", LocalDateTime.now().toString(),null));
                 }
 
-        throw new BadCredentialsException("User Not Found");
+        throw new InvalidCredentialsException();
+
     }
+
     public ResponseEntity<GeneralResponse> LogOut(HttpServletResponse response) {
         log.info("LogOut Process Has started");
         log.info("LogOut request::::::::::::: {}", LocalDateTime.now().toString());
@@ -145,7 +159,6 @@ public class OnboardingService {
                 .build();
         response.setHeader("Set-Cookie", cookie.toString());
         return new ResponseEntity<>(new GeneralResponse("You have logged out", LocalDateTime.now().toString()), HttpStatus.OK);
-
         }
 
     public ResponseEntity<GeneralResponse> deleteAcct(DeleteAcctRequest deleteAcctRequest) {

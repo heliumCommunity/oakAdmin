@@ -110,6 +110,15 @@ public class OrderTracker {
     @Column(name = "additional_notes")
     private String additionalNotes;
 
+    @Column(name = "order_type")
+    private String orderType;
+
+    @Column(name = "product_type")
+    private String productType;
+
+    @Column(name = "product_color")
+    private String productColor;
+
 
 
 
