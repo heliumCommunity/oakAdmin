@@ -15,7 +15,6 @@ public interface CustomerRepo extends JpaRepository<CustomerModule,Long> {
     Optional<CustomerModule> findByCustomerPhoneNumber(String phoneNumber);
 
     @Modifying
-    @Transactional
     @Query("UPDATE CustomerModule c SET c.orderCount = c.orderCount + 1 WHERE c.customerPhoneNumber = :customerPhoneNumber")
     CustomerModule orderCount(@Param("customerPhoneNumber") String customerPhoneNumber);
 }
