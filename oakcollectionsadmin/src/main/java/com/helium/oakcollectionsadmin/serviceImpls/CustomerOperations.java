@@ -86,8 +86,10 @@ public class CustomerOperations {
     public Object fetchCustomer(fetchCustomerRequest request) {
         log.info("fetchCustomer process has begun");
         if (request.getPhoneNumber()==null) {
+            log.info("Customers are - {}", repo.findAll());
             return repo.findAll();
         }
+        log.info("Customers are - {}", repo.findByCustomerPhoneNumber(request.getPhoneNumber()));
         return repo.findByCustomerPhoneNumber(request.getPhoneNumber());
     }
 
