@@ -50,14 +50,14 @@ public class CustomerOperations {
     public GeneralResponse updateCustomer(UpdateCustomerRequest request) {
         try {
             log.info("updateCustomer process has begun");
-            Optional <CustomerModule> findByNumber = repo.findByCustomerPhoneNumber(request.getCustomerPhoneNumber());
+            Optional <CustomerModule> findByNumber = repo.findByCustomerPhoneNumber(request.getCustomerCurrentPhoneNumber());
             if (findByNumber.isEmpty()) {
                 log.info("PhoneNumber Supplied Not Found");
                 return new GeneralResponse("Customer not found", LocalDateTime.now().toString());
             }
             CustomerModule customerModule = findByNumber.get();
-            if(request.getCustomerPhoneNumber()!=null){
-                customerModule.setCustomerPhoneNumber(request.getCustomerPhoneNumber());
+            if(request.getCustomerNewPhoneNumber()!=null){
+                customerModule.setCustomerPhoneNumber(request.getCustomerNewPhoneNumber());
             }
             if(request.getCustomerFirstName()!=null){
                 customerModule.setCustomerFirstName(request.getCustomerFirstName());
